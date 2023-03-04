@@ -1,0 +1,13 @@
+.venv
+.mypy_cache
+.pytest_cache
+__pycache__
+
+Dockerfile
+Makefile
+Makefile.*
+mypy.ini
+README.md
+architect.png
+setting-iam.sh
+.DS_Store

@@ -1,0 +1,53 @@
+name: Deploy to Cloud Run
+'on':
+  push:
+    branches:
+      - main
+
+env:
+  # deploy
+  SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_NAME }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+  IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+      - name: 'Set up gcloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+      - name: 'Init docker for gcloud'
+        run: gcloud auth configure-docker --quiet
+      - name: 'Build docker image'
+        run: docker build -t ${{ env.IMAGE }} .
+      - name: 'Push docker image'
+        run: docker push ${{ env.IMAGE }}
+      - name: 'Deploy Cloud Run'
+        run: |-
+          gcloud run deploy ${{ secrets.SERVICE_NAME }} \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --image=${{ env.IMAGE }} \
+            --region=${{ secrets.GCP_REGION }} \
+            --service-account=${{ env.SERVICE_ACCOUNT }} \
+            --timeout=60 \
+            --concurrency=80 \
+            --cpu=1 \
+            --memory=128Mi \
+            --max-instances=1  \
+            --allow-unauthenticated \
+            --set-env-vars=FRONTEND_URL_1=${{ secrets.FRONTEND_URL_1 }} \
+            --set-env-vars=FRONTEND_URL_2=${{ secrets.FRONTEND_URL_2 }} \
+            --set-env-vars=FRONTEND_URL_3=${{ secrets.FRONTEND_URL_3 }}
