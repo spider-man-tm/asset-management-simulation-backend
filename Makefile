@@ -4,9 +4,6 @@ build:
 run-local:
 	docker run -p 9000:9000 \
 		-e PORT=9000 \
-		-e FRONTEND_URL_1=${FRONTEND_URL_1} \
-		-e FRONTEND_URL_2=${FRONTEND_URL_2} \
-		-e FRONTEND_URL_3=${FRONTEND_URL_3} \
 		gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG)
 
 push:
