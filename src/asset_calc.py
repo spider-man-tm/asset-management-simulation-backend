@@ -160,10 +160,10 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
         table_rows.append({
             'name': asset.name,
             'originPrice': _origin // 10000,
-            'top10': f'+{_top10}' if _top10 > 0 else f'{_top10}' if _top10 < 0 else '±0',
-            'top30': f'+{_top30}' if _top30 > 0 else f'{_top30}' if _top30 < 0 else '±0',
-            'worst30': f'+{_worst30}' if _worst30 > 0 else f'{_worst30}' if _worst30 < 0 else '±0',
-            'worst10': f'+{_worst10}' if _worst10 > 0 else f'{_worst10}' if _worst10 < 0 else '±0',
+            'top10': f'+{_top10:.0f}' if _top10 > 0 else f'{_top10:.0f}' if _top10 < 0 else '±0',
+            'top30': f'+{_top30:.0f}' if _top30 > 0 else f'{_top30:.0f}' if _top30 < 0 else '±0',
+            'worst30': f'+{_worst30:.0f}' if _worst30 > 0 else f'{_worst30:.0f}' if _worst30 < 0 else '±0',
+            'worst10': f'+{_worst10:.0f}' if _worst10 > 0 else f'{_worst10:.0f}' if _worst10 < 0 else '±0',
             'prob': f'{_prob:.2f} %'
         })
 
