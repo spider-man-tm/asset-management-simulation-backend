@@ -33,6 +33,16 @@ make run-local -f Makefile.dev
 make build run-local -f Makefile.dev
 ```
 
+- poetryで直接`.venv`を作成する場合
+``` shell
+make install
+```
+
+- ローカルで`.venv`環境を使ったpytestを実行する場合
+``` shell
+make test-local
+```
+
 #### 手動デプロイ
 - Makefile.prdなどを用意する。あとは以下のコマンドでdeployまで行う
 - デプロイ時に`FRONTEND_URL_hoge`を環境変数として渡す必要があるのでMakefile.prdで事前に定義する
