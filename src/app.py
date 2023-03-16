@@ -20,10 +20,13 @@ from asset_calc import (
 
 
 app = Flask(__name__)
+url0 = os.getenv('PREVIEW_FRONTEND_URL', None)
 url1 = os.getenv('FRONTEND_URL_1', None)
 url2 = os.getenv('FRONTEND_URL_2', None)
 url3 = os.getenv('FRONTEND_URL_3', None)
 origins = ['http://localhost:3000']
+if url0:
+    origins.append(url0)
 if url1:
     origins.append(url1)
 if url2:
