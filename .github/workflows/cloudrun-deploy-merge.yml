@@ -48,6 +48,7 @@ jobs:
             --memory=128Mi \
             --max-instances=1  \
             --allow-unauthenticated \
+            --set-env-vars=PREVIEW_FRONTEND_URL=${{ secrets.PREVIEW_FRONTEND_URL }} \
             --set-env-vars=FRONTEND_URL_1=${{ secrets.FRONTEND_URL_1 }} \
             --set-env-vars=FRONTEND_URL_2=${{ secrets.FRONTEND_URL_2 }} \
             --set-env-vars=FRONTEND_URL_3=${{ secrets.FRONTEND_URL_3 }}
