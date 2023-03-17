@@ -21,9 +21,9 @@ class Asset:
         year: float,
         reserved: float,
         init_fund: float,
-        is_jp: bool,
+        is_jp: float,
         volatility: float,
-        no_tax: bool
+        no_tax: float
     ):
         self.name = name
         self.yld = yld / 100
@@ -31,9 +31,9 @@ class Asset:
         self.year = int(year)
         self.reserved = reserved
         self.init_fund = init_fund
-        self.is_jp = is_jp
+        self.is_jp = bool(is_jp)
         self.volatility = volatility / 100
-        self.no_tax = no_tax
+        self.no_tax = bool(no_tax)
         self.yld_month = (1 + self.yld) ** (1/12) - 1
         self.volatility_month = self.volatility * (1 / math.sqrt(12))
         self._capital_price_transition: Optional[list] = None
