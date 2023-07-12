@@ -1,6 +1,7 @@
 ## asset-management-simulation-backend
 - 自作のWebAppである資産管理シミュレーションのバックエンドに関するレポジトリです。
 - フロントエンドのレポジトリは [こちら](https://github.com/spider-man-tm/asset-management-simulation-frontend)をご参照ください。
+- ELTパイプラインのレポジトリは [こちら](https://github.com/spider-man-tm/asset-management-simulation-dbt)をご参照ください。
 
 ![fig](architect.png)
 
