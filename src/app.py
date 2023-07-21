@@ -25,6 +25,7 @@ url1 = os.getenv('FRONTEND_URL_1', None)
 url2 = os.getenv('FRONTEND_URL_2', None)
 url3 = os.getenv('FRONTEND_URL_3', None)
 local_host = os.getenv('LOCAL_HOST', None)
+postman_header = os.getenv('POSTMAN_HEADER', None)
 origins = []
 if url0:
     origins.append(url0)
@@ -36,6 +37,8 @@ if url3:
     origins.append(url3)
 if local_host:
     origins.append(local_host)
+if postman_header:
+    origins.append(postman_header)
 CORS(
     app,
     origins=origins,
