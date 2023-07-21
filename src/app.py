@@ -24,7 +24,8 @@ url0 = os.getenv('PREVIEW_FRONTEND_URL', None)
 url1 = os.getenv('FRONTEND_URL_1', None)
 url2 = os.getenv('FRONTEND_URL_2', None)
 url3 = os.getenv('FRONTEND_URL_3', None)
-origins = ['http://localhost:3000']
+local_host = os.getenv('LOCAL_HOST', None)
+origins = []
 if url0:
     origins.append(url0)
 if url1:
@@ -33,6 +34,8 @@ if url2:
     origins.append(url2)
 if url3:
     origins.append(url3)
+if local_host:
+    origins.append(local_host)
 CORS(
     app,
     origins=origins,

@@ -14,6 +14,7 @@ build:
 run-local:
 	docker run -p 9000:9000 \
 		-e PORT=9000 \
+		-e LOCAL_HOST=$(LOCAL_HOST) \
 		gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG)
 
 push:
@@ -33,4 +34,5 @@ deploy:
 		--set-env-vars=PREVIEW_FRONTEND_URL=${PREVIEW_FRONTEND_URL} \
 		--set-env-vars=FRONTEND_URL_1=${FRONTEND_URL_1} \
 		--set-env-vars=FRONTEND_URL_2=${FRONTEND_URL_2} \
-		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3}
+		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3} \
+		--set-env-vars=LOCAL_HOST=${LOCAL_HOST} \
