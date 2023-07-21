@@ -32,7 +32,7 @@ deploy:
 		--memory=128Mi \
 		--max-instances=1  \
 		--allow-unauthenticated \
-		--set-env-vars=PREVIEW_FRONTEND_URL=${PREVIEW_FRONTEND_URL} \
+		--set-env-vars=FIREBASE_PROJECT_NAME=${FIREBASE_PROJECT_NAME} \
 		--set-env-vars=FRONTEND_URL_1=${FRONTEND_URL_1} \
 		--set-env-vars=FRONTEND_URL_2=${FRONTEND_URL_2} \
 		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3}

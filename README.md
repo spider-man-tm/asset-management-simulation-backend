@@ -50,13 +50,13 @@ make test-local
 
 #### 手動デプロイ
 - Makefile.prdなどを用意する。あとは以下のコマンドでdeployまで行う
-- デプロイ時に`FRONTEND_URL_hoge`や`PREVIEW_FRONTEND_URL`を環境変数として渡す必要があるのでMakefile.prdで事前に定義する
+- デプロイ時に`FRONTEND_URL_hoge`や`FIREBASE_PROJECT_NAME`を環境変数として渡す必要があるのでMakefile.prdで事前に定義する
 ```
 PROJECT_ID := xxx
 IMAGE := xxx
 TAG := xxx
 
-PREVIEW_FRONTEND_URL := xxx
+FIREBASE_PROJECT_NAME := xxx
 FRONTEND_URL_1 := xxx
 FRONTEND_URL_2 := xxx
 FRONTEND_URL_3 := xxx
@@ -138,7 +138,7 @@ echo $(gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" 
 
 | Secrets | 説明 |
 | --- | --- |
-| PREVIEW_FRONTEND_URL | Firebase Hosting のプレビュー環境URL |
+| FIREBASE_PROJECT_NAME | FirebaseのプロジェクトID |
 | FRONTEND_URL_1 | Firebase Hosting のURL (デフォルト1) |
 | FRONTEND_URL_2 | Firebase Hosting のURL (デフォルト2) |
 | FRONTEND_URL_3 | Firebase Hosting のURL (カスタムドメイン) |
