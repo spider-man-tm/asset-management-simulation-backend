@@ -31,7 +31,7 @@ firebase_project_name = os.getenv('FIREBASE_PROJECT_NAME', None)
 
 @app.after_request
 def add_cors_headers(response):
-    referrer = request.referrer.rstrip('/')
+    referrer = request.referrer.rstrip('/') if request.referrer else ''
     if origin_is_allowed(referrer):
         response.headers.add('Access-Control-Allow-Origin', referrer)
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
