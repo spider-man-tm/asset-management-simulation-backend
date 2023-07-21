@@ -14,13 +14,14 @@
 ### Usage
 #### ローカル開発
 - 準備
-  - Makefile.devなどを用意し、以下のようにGCPのプロジェクトIDと任意のイメージ名、タグ名、ローカルホスト名、（必要に応じて）postman headerなどを記述
+  - Makefile.devなどを用意し、以下のようにGCPのプロジェクトID、任意のイメージ名、タグ名、firebaseプロジェクト名、ローカルホスト名、（必要に応じて）postman headerなどを記述
   - Makefileを読み込む必要があるため、`include Makefile`も合わせて記述
 ```
 PROJECT_ID := xxx
 IMAGE := xxx
 TAG := xxx
 
+FIREBASE_PROJECT_NAME := xxx
 LOCAL_HOST := http://localhost:3000
 POSTMAN_HEADER := http://postman
 
