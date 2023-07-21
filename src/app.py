@@ -20,29 +20,36 @@ from asset_calc import (
 
 
 app = Flask(__name__)
-url0 = os.getenv('PREVIEW_FRONTEND_URL', None)
-url1 = os.getenv('FRONTEND_URL_1', None)
-url2 = os.getenv('FRONTEND_URL_2', None)
-url3 = os.getenv('FRONTEND_URL_3', None)
-local_host = os.getenv('LOCAL_HOST', None)
-postman_header = os.getenv('POSTMAN_HEADER', None)
-origins = []
-if url0:
-    origins.append(url0)
-if url1:
-    origins.append(url1)
-if url2:
-    origins.append(url2)
-if url3:
-    origins.append(url3)
-if local_host:
-    origins.append(local_host)
-if postman_header:
-    origins.append(postman_header)
-CORS(
-    app,
-    origins=origins,
-)
+
+# Create list of origins
+env_vars = ['FRONTEND_URL_1', 'FRONTEND_URL_2', 'FRONTEND_URL_3', 'LOCAL_HOST', 'POSTMAN_HEADER']
+origins = [os.getenv(var) for var in env_vars if os.getenv(var) is not None]
+
+# get firebase info
+firebase_project_name = os.getenv('FIREBASE_PROJECT_NAME', None)
+
+
+@app.after_request
+def add_cors_headers(response):
+    origin = request.referrer[:-1]
+    if origin_is_allowed(origin):
+        response.headers.add('Access-Control-Allow-Origin', origin)
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+
+def origin_is_allowed(origin):
+    parsed_uri = urllib.parse.urlparse(origin)
+    domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+    # check if firebase project name is in origin
+    if firebase_project_name and domain.startswith(f'https://{firebase_project_name}--'):
+        return True
+    else:
+        return domain in origins
+
+
+CORS(app, origins=origins)
 
 
 def get_params() -> list[tuple[str, list[float]]]:
