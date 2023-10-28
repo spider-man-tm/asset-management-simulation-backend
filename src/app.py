@@ -23,7 +23,8 @@ app = Flask(__name__)
 logger = make_logger()
 
 # Create list of origins
-env_vars = ['FRONTEND_URL_1', 'FRONTEND_URL_2', 'FRONTEND_URL_3', 'LOCAL_HOST', 'POSTMAN_HEADER']
+env_vars = ['FRONTEND_URL_1', 'FRONTEND_URL_2',
+            'FRONTEND_URL_3', 'LOCAL_HOST', 'POSTMAN_HEADER']
 origins = [os.getenv(var) for var in env_vars if os.getenv(var) is not None]
 
 # get firebase info
@@ -36,7 +37,8 @@ def add_cors_headers(response):
     if origin_is_allowed(referrer):
         response.headers.add('Access-Control-Allow-Origin', referrer)
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
 
@@ -75,12 +77,14 @@ def calculation():
         params = get_params()
         logger.info(f'calculation params: {params}')
 
-        assets = [Asset(stock_name, *stock_data) for stock_name, stock_data in params]
+        assets = [Asset(stock_name, *stock_data)
+                  for stock_name, stock_data in params]
         for A in assets:
             A.set_price_transition()
 
         res = {}
-        res['transition'] = get_total_transion(assets)  # Using Transition Chart
+        res['transition'] = get_total_transion(
+            assets)  # Using Transition Chart
         res['pie'] = get_ratio_asset(assets)            # Using Pie Chart
         res['density'] = get_density_dist(assets)       # Using Density Chart
         res['bar'] = get_dividend_price(assets)         # Using Bar Chart
@@ -105,7 +109,8 @@ def re_calculation():
         params = get_params()
         logger.info(f'calculation params: {params}')
 
-        assets = [Asset(stock_name, *stock_data) for stock_name, stock_data in params[:-1]]
+        assets = [Asset(stock_name, *stock_data)
+                  for stock_name, stock_data in params[:-1]]
         for A in assets:
             A.set_price_transition()
 
