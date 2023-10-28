@@ -13,6 +13,7 @@ import numpy as np
 class Asset:
     """ Asset class
     """
+
     def __init__(
         self,
         name: str,
@@ -62,12 +63,15 @@ class Asset:
         for year in range(20):   # max 20 years
             for month in range(12):
                 if year < self.year:
-                    capital_price_transition_month.append(capital_price_transition_month[-1] + self.reserved)
+                    capital_price_transition_month.append(
+                        capital_price_transition_month[-1] + self.reserved)
                     price_transition_month.append(
-                        price_transition_month[-1] * (1 + self.yld_month) + self.reserved
+                        price_transition_month[-1] *
+                        (1 + self.yld_month) + self.reserved
                     )
                 else:
-                    capital_price_transition_month.append(capital_price_transition_month[-1])
+                    capital_price_transition_month.append(
+                        capital_price_transition_month[-1])
                     price_transition_month.append(
                         price_transition_month[-1] * (1 + self.yld_month)
                     )
@@ -90,7 +94,8 @@ def get_total_transion(assets: list[Asset]) -> dict:
     for asset in assets:
         for i in range(max_year + 1):
             # i: year
-            capital_price_transition[i] += round(asset.capital_price_transition[i])
+            capital_price_transition[i] += round(
+                asset.capital_price_transition[i])
             original_price_transition[i] += round(asset.price_transition[i])
     return {
         'max_year': max_year,
@@ -106,14 +111,17 @@ def get_ratio_asset(assets: list[Asset]) -> dict:
     has_tax = []
     not_tax = []
     for asset in assets:
-        not_tax.append({'name': asset.name, 'y': asset.price_transition[max_year] // 10000})
+        not_tax.append(
+            {'name': asset.name, 'y': asset.price_transition[max_year] // 10000})
 
         # NoTax(NISA)
         if asset.no_tax:
-            has_tax.append({'name': asset.name, 'y': asset.price_transition[max_year] // 10000})
+            has_tax.append(
+                {'name': asset.name, 'y': asset.price_transition[max_year] // 10000})
         # HasTax
         else:
-            profit = asset.price_transition[max_year] - asset.capital_price_transition[max_year]
+            profit = asset.price_transition[max_year] - \
+                asset.capital_price_transition[max_year]
             tax = profit * 0.20315
             has_tax.append({
                 'name': asset.name,
@@ -137,11 +145,13 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
 
         for _ in range(simulation_time):
             now_price = asset.init_fund
-            random_norm = np.random.normal(loc=asset.yld_month, scale=asset.volatility_month, size=max_year*12)
+            random_norm = np.random.normal(
+                loc=asset.yld_month, scale=asset.volatility_month, size=max_year*12)
             for year in range(max_year):
                 for month in range(12):
                     if year < asset.year:
-                        now_price = now_price * (1 + random_norm[year*month]) + asset.reserved
+                        now_price = now_price * \
+                            (1 + random_norm[year*month]) + asset.reserved
                     else:
                         now_price = now_price * (1 + random_norm[year*month])
             result.append(now_price - _origin)
@@ -166,7 +176,6 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
             'worst10': f'+{_worst10:.0f}' if _worst10 > 0 else f'{_worst10:.0f}' if _worst10 < 0 else '±0',
             'prob': f'{_prob:.2f} %'
         })
-
 
     result_total = list(_result_total)
     result_total = sorted(result_total)
@@ -264,7 +273,8 @@ def get_demolition_price(assets: list[Asset], duration: int) -> dict:
             else:
                 yield_year = asset.yld + asset.div * 0.71787
 
-        k = (yield_year * (1 + yield_year)**duration) / ((1 + yield_year)**duration - 1)
+        k = (yield_year * (1 + yield_year)**duration) / \
+            ((1 + yield_year)**duration - 1)
 
         demolition_per_year = start_price * k
         demolition_per_year_total += demolition_per_year
