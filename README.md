@@ -7,6 +7,7 @@
 ### Overview
 - WebフレームワークはFlaskを使用しています。
 - デプロイ先は Google Cloud Runです。
+- hoge branchからdevelop branchへPRがマージされたタイミングでmain branchへのリリースPRが自動作成されます。
 - main branchへのPRが発行されたタイミングで、GitHub Actionsを利用した自動テスト(pytest)が実施されます。
 - main branchへpush、あるいはPRがマージされたタイミングでGitHub Actionsを利用したCloud Runへの自動デプロイが実施されます。
 
