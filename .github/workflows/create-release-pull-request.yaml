@@ -11,18 +11,22 @@ jobs:
       GIT_PR_RELEASE_BRANCH_PRODUCTION: main
       GIT_PR_RELEASE_BRANCH_STAGING: develop
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
 
-      - name: Set up Ruby 3.1
+      - name: Set up Ruby 3.2
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1
+          ruby-version: 3.2
 
       - name: Execute git-pr-release
         env:
           GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_PR_RELEASE_BRANCH_PRODUCTION: main
+          GIT_PR_RELEASE_BRANCH_STAGING: develop
+          GIT_PR_RELEASE_VERSION: 2.1.1
+          GIT_PR_RELEASE_LABELS: release
           GIT_PR_RELEASE_TEMPLATE: '.github/pr-release-template.erb'
         run: |
-          gem install git-pr-release -v "0.6.0"
+          gem install -N git-pr-release -v $GIT_PR_RELEASE_VERSION
           git remote set-url origin "https://${GITHUB_ACTOR}:${GIT_PR_RELEASE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git-pr-release || echo "Done."
+          git-pr-release --squashed
