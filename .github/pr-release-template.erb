@@ -1,8 +1,23 @@
 Release <%= Time.now.strftime('%Y-%m-%d %H:%M') %>
+
+## 変更点
+
 <% pull_requests.each do |pr| -%>
+<% if !pr.to_checklist_item.downcase(:ascii).include?("@dependabot[bot]") then -%>
 <%= pr.to_checklist_item %>
 <% end -%>
+<% end -%>
 
-- - -
+---
+
+## Dependabot
+
+<% pull_requests.each do |pr| -%>
+<% if pr.to_checklist_item.downcase(:ascii).include?("@dependabot[bot]") then -%>
+<%= pr.to_checklist_item %>
+<% end -%>
+<% end -%>
+
+---
 
 このPRはmainとdevelopの差分から自動生成されました。
