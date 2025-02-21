@@ -1,21 +1,26 @@
 ## asset-management-simulation-backend
-- 自作のWebAppである資産管理シミュレーションのバックエンドに関するレポジトリです。
+
+- 自作の WebApp である資産管理シミュレーションのバックエンドに関するレポジトリです。
 - フロントエンドのレポジトリは [こちら](https://github.com/spider-man-tm/asset-management-simulation-frontend)をご参照ください。
 
 ![fig](architect.png)
 
 ### Overview
-- WebフレームワークはFlaskを使用しています。
-- デプロイ先は Google Cloud Runです。
-- develop branchへのPRが発行されたタイミングで、GitHub Actionsを利用した自動テスト(pytest)が実施されます。
-- develop branchへのPRがマージされたタイミングでmain branchへのリリースPRが自動作成されます。
-- main branchへpush、あるいはPRがマージされたタイミングでGitHub Actionsを利用したCloud Runへの自動デプロイが実施されます。
+
+- Web フレームワークは Flask を使用しています。
+- デプロイ先は Google Cloud Run です。
+- develop branch への PR が発行されたタイミングで、GitHub Actions を利用した自動テスト(pytest)が実施されます。
+- develop branch への PR がマージされたタイミングで main branch へのリリース PR が自動作成されます。
+- main branch へ push、あるいは PR がマージされたタイミングで GitHub Actions を利用した Cloud Run への自動デプロイが実施されます。
 
 ### Usage
+
 #### ローカル開発
+
 - 準備
-  - Makefile.devなどを用意し、以下のようにGCPのプロジェクトID、任意のイメージ名、タグ名、firebaseプロジェクト名、ローカルホスト名、（必要に応じて）postman headerなどを記述
-  - Makefileを読み込む必要があるため、`include Makefile`も合わせて記述
+  - Makefile.dev などを用意し、以下のように GCP のプロジェクト ID、任意のイメージ名、タグ名、firebase プロジェクト名、ローカルホスト名、（必要に応じて）postman header などを記述
+  - Makefile を読み込む必要があるため、`include Makefile`も合わせて記述
+
 ```
 PROJECT_ID := xxx
 IMAGE := xxx
@@ -28,8 +33,9 @@ POSTMAN_HEADER := http://postman
 include Makefile
 ```
 
-- Dockerコンテナを起動する場合
-``` shell
+- Docker コンテナを起動する場合
+
+```shell
 # ビルド
 make build -f Makefile.dev
 # ローカルでコンテナ起動
@@ -38,19 +44,23 @@ make run-local -f Makefile.dev
 make build run-local -f Makefile.dev
 ```
 
-- poetryで直接`.venv`を作成する場合
-``` shell
+- poetry で直接`.venv`を作成する場合
+
+```shell
 make install
 ```
 
-- ローカルで`.venv`環境を使ったpytestを実行する場合
-``` shell
+- ローカルで`.venv`環境を使った pytest を実行する場合
+
+```shell
 make test-local
 ```
 
 #### 手動デプロイ
-- Makefile.prdなどを用意する。あとは以下のコマンドでdeployまで行う
-- デプロイ時に`FRONTEND_URL_hoge`や`FIREBASE_PROJECT_NAME`を環境変数として渡す必要があるのでMakefile.prdで事前に定義する
+
+- Makefile.prd などを用意する。あとは以下のコマンドで deploy まで行う
+- デプロイ時に`FRONTEND_URL_hoge`や`FIREBASE_PROJECT_NAME`を環境変数として渡す必要があるので Makefile.prd で事前に定義する
+
 ```
 PROJECT_ID := xxx
 IMAGE := xxx
@@ -64,7 +74,7 @@ FRONTEND_URL_3 := xxx
 include Makefile
 ```
 
-``` shell
+```shell
 # ビルド
 make build -f Makefile.prd
 # イメージをpush
@@ -75,15 +85,17 @@ make deploy -f Makefile.prd
 make build push deploy -f Makefile.prd
 ```
 
-#### CI/CD
-- GCP上に新規サービスアカウントを以下のロールを付与した状態で作成
+#### 自動デプロイのための準備
+
+- GCP 上に新規サービスアカウントを以下のロールを付与した状態で作成
   - ストレージ管理者
   - Cloud Run 管理者
   - サービスアカウントユーザー
 - 以下のスクリプトを実行
-  - サービスアカウントで発行されたjson鍵を使う認証は非推奨のため、workload-identityを使用
-  - 実行後、workload_identity_providerが表示されるが、後工程で必要
-``` shell
+  - サービスアカウントで発行された json 鍵を使う認証は非推奨のため、workload-identity を使用
+  - 実行後、workload_identity_provider が表示されるが、後工程で必要
+
+```shell
 PROJECT_ID=xxx
 SERVICE_ACCOUNT_NAME=xxx   # 上記で作成したサービスアカウント
 POOL_NAME=xxx
@@ -134,16 +146,17 @@ echo $(gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" 
   --format='value(name)')
 
 ```
-- GitHub上で各種Secretsを設定
 
-| Secrets | 説明 |
-| --- | --- |
-| FIREBASE_PROJECT_NAME | FirebaseのプロジェクトID |
-| FRONTEND_URL_1 | Firebase Hosting のURL (デフォルト1) |
-| FRONTEND_URL_2 | Firebase Hosting のURL (デフォルト2) |
-| FRONTEND_URL_3 | Firebase Hosting のURL (カスタムドメイン) |
-| GCP_PROJECT_ID | デプロイ先のプロジェクトID |
-| GCP_REGION | デプロイ先のリージョン |
-| SERVICE_ACCOUNT_NAME | 作成したサービスアカウント名 |
-| SERVICE_NAME | Docker Image 名 |
-| WORKLOAD_IDENTITY_PROVIDER | 作成したプロバイダー名 |
+- GitHub 上で各種 Secrets を設定
+
+| Secrets                    | 説明                                       |
+| -------------------------- | ------------------------------------------ |
+| FIREBASE_PROJECT_NAME      | Firebase のプロジェクト ID                 |
+| FRONTEND_URL_1             | Firebase Hosting の URL (デフォルト 1)     |
+| FRONTEND_URL_2             | Firebase Hosting の URL (デフォルト 2)     |
+| FRONTEND_URL_3             | Firebase Hosting の URL (カスタムドメイン) |
+| GCP_PROJECT_ID             | デプロイ先のプロジェクト ID                |
+| GCP_REGION                 | デプロイ先のリージョン                     |
+| SERVICE_ACCOUNT_NAME       | 作成したサービスアカウント名               |
+| SERVICE_NAME               | Docker Image 名                            |
+| WORKLOAD_IDENTITY_PROVIDER | 作成したプロバイダー名                     |
