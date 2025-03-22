@@ -29,7 +29,12 @@ env_vars = [
     'LOCAL_HOST',
     'POSTMAN_HEADER',
 ]
-origins = [os.getenv(var) for var in env_vars if os.getenv(var) is not None]
+origins = []
+for var in env_vars:
+    if org := os.getenv(var):
+        origins.append(org)
+
+CORS(app, origins=origins)
 
 # get firebase info
 firebase_project_name = os.getenv('FIREBASE_PROJECT_NAME', None)
@@ -57,9 +62,6 @@ def origin_is_allowed(origin: str) -> bool:
         return True
     else:
         return domain in origins
-
-
-CORS(app, origins=origins)
 
 
 def get_params() -> list[tuple[str, list[float]]]:

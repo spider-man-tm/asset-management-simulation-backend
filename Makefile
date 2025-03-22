@@ -14,7 +14,7 @@ lint:
 	$(POETRY_RUN) isort . --check
 	$(POETRY_RUN) pflake8 .
 	$(POETRY_RUN) black . --check
-	$(POETRY_RUN) mypy .
+	cd src/ && $(POETRY_RUN) mypy .
 
 build:
 	docker build --platform linux/amd64 -t gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG) .
