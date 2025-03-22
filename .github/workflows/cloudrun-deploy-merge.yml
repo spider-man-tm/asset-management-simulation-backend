@@ -22,12 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0'
+        uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ env.SERVICE_ACCOUNT }}
       - name: 'Set up gcloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v0'
+        uses: 'google-github-actions/setup-gcloud@v2'
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
       - name: 'Init docker for gcloud'
