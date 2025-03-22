@@ -2,8 +2,8 @@
 Main functions
 """
 
-import math
 import collections
+import math
 from bisect import bisect_right
 from typing import Optional
 
@@ -11,8 +11,7 @@ import numpy as np
 
 
 class Asset:
-    """ Asset class
-    """
+    """Asset class"""
 
     def __init__(
         self,
@@ -24,7 +23,7 @@ class Asset:
         init_fund: float,
         is_jp: float,
         volatility: float,
-        no_tax: float
+        no_tax: float,
     ):
         self.name = name
         self.yld = yld / 100
@@ -35,7 +34,7 @@ class Asset:
         self.is_jp = bool(is_jp)
         self.volatility = volatility / 100
         self.no_tax = bool(no_tax)
-        self.yld_month = (1 + self.yld) ** (1/12) - 1
+        self.yld_month = (1 + self.yld) ** (1 / 12) - 1
         self.volatility_month = self.volatility * (1 / math.sqrt(12))
         self._capital_price_transition: Optional[list] = None
         self._price_transition: Optional[list] = None
@@ -45,33 +44,32 @@ class Asset:
 
     @property
     def capital_price_transition(self):
-        """ Return capital price transition (元本推移)
-        """
+        """Return capital price transition (元本推移)"""
         return self._capital_price_transition
 
     @property
     def price_transition(self):
-        """ Return price transition (価格推移)
-        """
+        """Return price transition (価格推移)"""
         return self._price_transition
 
     def set_price_transition(self) -> None:
-        """ Set the asset transition when operating for 20 years
-        """
+        """Set the asset transition when operating for 20 years"""
         capital_price_transition_month = [self.init_fund]
         price_transition_month = [self.init_fund]
-        for year in range(20):   # max 20 years
+        for year in range(20):  # max 20 years
             for month in range(12):
                 if year < self.year:
                     capital_price_transition_month.append(
-                        capital_price_transition_month[-1] + self.reserved)
+                        capital_price_transition_month[-1] + self.reserved
+                    )
                     price_transition_month.append(
-                        price_transition_month[-1] *
-                        (1 + self.yld_month) + self.reserved
+                        price_transition_month[-1] * (1 + self.yld_month)
+                        + self.reserved
                     )
                 else:
                     capital_price_transition_month.append(
-                        capital_price_transition_month[-1])
+                        capital_price_transition_month[-1]
+                    )
                     price_transition_month.append(
                         price_transition_month[-1] * (1 + self.yld_month)
                     )
@@ -81,7 +79,7 @@ class Asset:
 
 
 def get_total_transion(assets: list[Asset]) -> dict:
-    """ Returns the total price transition of all Assets
+    """Returns the total price transition of all Assets
 
     Args:
         assets (list[Asset]): List of Asset objects
@@ -94,8 +92,7 @@ def get_total_transion(assets: list[Asset]) -> dict:
     for asset in assets:
         for i in range(max_year + 1):
             # i: year
-            capital_price_transition[i] += round(
-                asset.capital_price_transition[i])
+            capital_price_transition[i] += round(asset.capital_price_transition[i])
             original_price_transition[i] += round(asset.price_transition[i])
     return {
         'max_year': max_year,
@@ -105,28 +102,33 @@ def get_total_transion(assets: list[Asset]) -> dict:
 
 
 def get_ratio_asset(assets: list[Asset]) -> dict:
-    """ Returns the ratio of assets
-    """
+    """Returns the ratio of assets"""
     max_year = max([asset.year for asset in assets])
     has_tax = []
     not_tax = []
     for asset in assets:
         not_tax.append(
-            {'name': asset.name, 'y': asset.price_transition[max_year] // 10000})
+            {'name': asset.name, 'y': asset.price_transition[max_year] // 10000}
+        )
 
         # NoTax(NISA)
         if asset.no_tax:
             has_tax.append(
-                {'name': asset.name, 'y': asset.price_transition[max_year] // 10000})
+                {'name': asset.name, 'y': asset.price_transition[max_year] // 10000}
+            )
         # HasTax
         else:
-            profit = asset.price_transition[max_year] - \
-                asset.capital_price_transition[max_year]
+            profit = (
+                asset.price_transition[max_year]
+                - asset.capital_price_transition[max_year]
+            )
             tax = profit * 0.20315
-            has_tax.append({
-                'name': asset.name,
-                'y': (asset.price_transition[max_year] - tax) // 10000
-            })
+            has_tax.append(
+                {
+                    'name': asset.name,
+                    'y': (asset.price_transition[max_year] - tax) // 10000,
+                }
+            )
     return {
         'notTax': not_tax,
         'hasTax': has_tax,
@@ -134,8 +136,7 @@ def get_ratio_asset(assets: list[Asset]) -> dict:
 
 
 def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
-    """ Returns the density distribution of assets
-    """
+    """Returns the density distribution of assets"""
     max_year = max([asset.year for asset in assets])
     _result_total = np.zeros(simulation_time)
     table_rows = []
@@ -146,14 +147,16 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
         for _ in range(simulation_time):
             now_price = asset.init_fund
             random_norm = np.random.normal(
-                loc=asset.yld_month, scale=asset.volatility_month, size=max_year*12)
+                loc=asset.yld_month, scale=asset.volatility_month, size=max_year * 12
+            )
             for year in range(max_year):
                 for month in range(12):
                     if year < asset.year:
-                        now_price = now_price * \
-                            (1 + random_norm[year*month]) + asset.reserved
+                        now_price = (
+                            now_price * (1 + random_norm[year * month]) + asset.reserved
+                        )
                     else:
-                        now_price = now_price * (1 + random_norm[year*month])
+                        now_price = now_price * (1 + random_norm[year * month])
             result.append(now_price - _origin)
 
         _result_total += np.array(result)
@@ -167,15 +170,33 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
         _worst30 = _result[simulation_time // 10 * 3] // 10000
         _worst10 = _result[simulation_time // 10] // 10000
 
-        table_rows.append({
-            'name': asset.name,
-            'originPrice': _origin // 10000,
-            'top10': f'+{_top10:.0f}' if _top10 > 0 else f'{_top10:.0f}' if _top10 < 0 else '±0',
-            'top30': f'+{_top30:.0f}' if _top30 > 0 else f'{_top30:.0f}' if _top30 < 0 else '±0',
-            'worst30': f'+{_worst30:.0f}' if _worst30 > 0 else f'{_worst30:.0f}' if _worst30 < 0 else '±0',
-            'worst10': f'+{_worst10:.0f}' if _worst10 > 0 else f'{_worst10:.0f}' if _worst10 < 0 else '±0',
-            'prob': f'{_prob:.2f} %'
-        })
+        table_rows.append(
+            {
+                'name': asset.name,
+                'originPrice': _origin // 10000,
+                'top10': (
+                    f'+{_top10:.0f}'
+                    if _top10 > 0
+                    else f'{_top10:.0f}' if _top10 < 0 else '±0'
+                ),
+                'top30': (
+                    f'+{_top30:.0f}'
+                    if _top30 > 0
+                    else f'{_top30:.0f}' if _top30 < 0 else '±0'
+                ),
+                'worst30': (
+                    f'+{_worst30:.0f}'
+                    if _worst30 > 0
+                    else f'{_worst30:.0f}' if _worst30 < 0 else '±0'
+                ),
+                'worst10': (
+                    f'+{_worst10:.0f}'
+                    if _worst10 > 0
+                    else f'{_worst10:.0f}' if _worst10 < 0 else '±0'
+                ),
+                'prob': f'{_prob:.2f} %',
+            }
+        )
 
     result_total = list(_result_total)
     result_total = sorted(result_total)
@@ -196,8 +217,7 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
 
 
 def get_dividend_price(assets: list[Asset]) -> dict:
-    """ Returns the total dividend price of all Assets
-    """
+    """Returns the total dividend price of all Assets"""
     max_year = max([asset.year for asset in assets])
     prices = [0] * (max_year + 1)
     tax = [0] * (max_year + 1)
@@ -246,8 +266,7 @@ def get_dividend_price(assets: list[Asset]) -> dict:
 
 
 def get_demolition_price(assets: list[Asset], duration: int) -> dict:
-    """ Returns the total demolition price of all Assets
-    """
+    """Returns the total demolition price of all Assets"""
     last_year = max([asset.year for asset in assets])
     price_transition = [0] * (duration + 1)
 
@@ -273,8 +292,9 @@ def get_demolition_price(assets: list[Asset], duration: int) -> dict:
             else:
                 yield_year = asset.yld + asset.div * 0.71787
 
-        k = (yield_year * (1 + yield_year)**duration) / \
-            ((1 + yield_year)**duration - 1)
+        k = (yield_year * (1 + yield_year) ** duration) / (
+            (1 + yield_year) ** duration - 1
+        )
 
         demolition_per_year = start_price * k
         demolition_per_year_total += demolition_per_year
