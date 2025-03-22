@@ -5,19 +5,18 @@ Flask App main modules
 import os
 import urllib.parse
 
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from utils import set_seed, make_logger
 from asset_calc import (
     Asset,
-    get_total_transion,
-    get_ratio_asset,
+    get_demolition_price,
     get_density_dist,
     get_dividend_price,
-    get_demolition_price
+    get_ratio_asset,
+    get_total_transion,
 )
-
+from utils import make_logger, set_seed
 
 app = Flask(__name__)
 logger = make_logger()

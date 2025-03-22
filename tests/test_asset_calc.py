@@ -6,10 +6,10 @@ import pytest
 
 from src.asset_calc import (
     Asset,
-    get_total_transion,
-    get_ratio_asset,
+    get_demolition_price,
     get_dividend_price,
-    get_demolition_price
+    get_ratio_asset,
+    get_total_transion,
 )
 
 

@@ -1,3 +1,5 @@
+POETRY_RUN := poetry run
+
 install:
 	poetry env use 3.10
 	poetry install
@@ -6,7 +8,13 @@ test-local:
 	if [ ! -d ".venv" ]; then\
 		make install;\
 	fi
-	poetry run pytest
+	$(POETRY_RUN) pytest
+
+lint:
+	$(POETRY_RUN) isort . --check
+	$(POETRY_RUN) pflake8 .
+	$(POETRY_RUN) black . --check
+	$(POETRY_RUN) mypy .
 
 build:
 	docker build --platform linux/amd64 -t gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG) .

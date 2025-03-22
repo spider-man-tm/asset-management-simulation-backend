@@ -2,8 +2,8 @@
 Using set seed to make the result of random function reproducible.
 """
 
-import os
 import logging
+import os
 import random
 
 import numpy as np

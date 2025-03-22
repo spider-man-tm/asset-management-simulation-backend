@@ -2,8 +2,8 @@
 Main functions
 """
 
-import math
 import collections
+import math
 from bisect import bisect_right
 from typing import Optional
 
