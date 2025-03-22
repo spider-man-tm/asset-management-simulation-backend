@@ -35,7 +35,7 @@ class Asset:
         self.is_jp = bool(is_jp)
         self.volatility = volatility / 100
         self.no_tax = bool(no_tax)
-        self.yld_month = (1 + self.yld) ** (1/12) - 1
+        self.yld_month = (1 + self.yld) ** (1 / 12) - 1
         self.volatility_month = self.volatility * (1 / math.sqrt(12))
         self._capital_price_transition: Optional[list] = None
         self._price_transition: Optional[list] = None
@@ -146,14 +146,14 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
         for _ in range(simulation_time):
             now_price = asset.init_fund
             random_norm = np.random.normal(
-                loc=asset.yld_month, scale=asset.volatility_month, size=max_year*12)
+                loc=asset.yld_month, scale=asset.volatility_month, size=max_year * 12)
             for year in range(max_year):
                 for month in range(12):
                     if year < asset.year:
                         now_price = now_price * \
-                            (1 + random_norm[year*month]) + asset.reserved
+                            (1 + random_norm[year * month]) + asset.reserved
                     else:
-                        now_price = now_price * (1 + random_norm[year*month])
+                        now_price = now_price * (1 + random_norm[year * month])
             result.append(now_price - _origin)
 
         _result_total += np.array(result)
