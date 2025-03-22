@@ -1,13 +1,12 @@
-name: pytest on PR
+name: Python lint
 
 on: pull_request
 
 env:
-  # pytest
   PYTHON_VERSION: "3.10"
 
 jobs:
-  pytest:
+  python-lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +24,7 @@ jobs:
           pip install poetry
       - name: Poetry Install Dependencies
         run: |
-          poetry install --only main
-      - name: Test with pytest
+          poetry install
+      - name: Lint
         run: |
-          poetry run pytest
+          make lint

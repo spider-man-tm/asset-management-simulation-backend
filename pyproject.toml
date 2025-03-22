@@ -1,24 +1,77 @@
-[tool.poetry]
+[project]
 name = "backend"
 version = "0.1.0"
 description = ""
-authors = ["Takayoshi Makabe <makabe.takayoshi1117@gmail.com>"]
+authors = [
+    { name = "Takayoshi Makabe", email = "makabe.takayoshi1117@gmail.com" }
+]
 readme = "README.md"
+requires-python = "^3.10"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-Flask = "^2.2.2"
-Flask-Cors = "^3.0.10"
-gunicorn = "^20.1.0"
-firebase-admin = "^6.1.0"
-numpy = "^1.24.2"
-pytest = "^7.2.1"
-
-
-[tool.poetry.group.dev.dependencies]
-autopep8 = "^2.0.0"
-mypy = "^0.991"
+dependencies = [
+    "Flask>=2.2.2,<3.0.0",
+    "Flask-Cors>=3.0.10,<4.0.0",
+    "gunicorn>=20.1.0,<21.0.0",
+    "firebase-admin>=6.1.0,<7.0.0",
+    "numpy>=1.24.2,<2.0.0",
+    "pytest>=7.2.1,<8.0.0"
+]
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.991"
+black = "^25.1.0"
+isort = "^6.0.1"
+flake8 = "7.0.0"
+pyproject-flake8 = "^7.0.0"
+types-flask-cors = "^5.0.0.20240902"
+
+[tool.isort]
+profile = "black"
+skip = [".git", ".venv", ".mypy_cache", ".pytest_cache"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+skip-string-normalization = true
+exclude = '''
+/(
+  \.git
+| \.venv
+| \.mypy_cache
+| \.pytest_cache
+| node_modules
+)/
+'''
+
+[tool.mypy]
+python_version = 3.11
+disallow_untyped_defs = true
+ignore_missing_imports = true
+explicit_package_bases = true
+mypy_path = "src"
+strict_optional = true
+exclude = '^(\.venv|\.git)'
+
+[tool.flake8]
+max-line-length = 120
+ignore = [
+  "E203",
+  "W503",
+  "W504"
+]
+exclude = [
+  ".git",
+  ".venv",
+  ".mypy_cache",
+  ".pytest_cache",
+  "node_modules"
+]
+
+[tool.pyproject_flake8]
