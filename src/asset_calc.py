@@ -137,6 +137,10 @@ def get_ratio_asset(assets: list[Asset]) -> dict:
 
 def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
     """Returns the density distribution of assets"""
+    # Returns an empty dictionary if the volatility of all assets is 0
+    if all(asset.volatility_month == 0 for asset in assets):
+        return {}
+
     max_year = max([asset.year for asset in assets])
     _result_total = np.zeros(simulation_time)
     table_rows = []
