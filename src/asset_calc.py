@@ -78,7 +78,7 @@ class Asset:
         self._price_transition = price_transition_month[::12]
 
 
-def get_total_transion(assets: list[Asset]) -> dict:
+def get_total_transition(assets: list[Asset]) -> dict:
     """Returns the total price transition of all Assets
 
     Args:
@@ -153,10 +153,11 @@ def get_density_dist(assets: list[Asset], simulation_time: int = 1000) -> dict:
                 for month in range(12):
                     if year < asset.year:
                         now_price = (
-                            now_price * (1 + random_norm[year * month]) + asset.reserved
+                            now_price * (1 + random_norm[year * 12 + month])
+                            + asset.reserved
                         )
                     else:
-                        now_price = now_price * (1 + random_norm[year * month])
+                        now_price = now_price * (1 + random_norm[year * 12 + month])
             result.append(now_price - _origin)
 
         _result_total += np.array(result)
