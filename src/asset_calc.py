@@ -35,6 +35,66 @@ class Constants:
     RANGE_DIVISOR = 2
 
 
+class DividendTaxCalculator:
+    """Dividend tax calculation utility for different asset types and account types"""
+
+    @staticmethod
+    def get_dividend_tax_rate(is_jp: bool, no_tax: bool) -> float:
+        """Get dividend tax rate based on asset and account type
+
+        Args:
+            is_jp: True if Japanese stock, False if US stock
+            no_tax: True if NISA account, False if taxable account
+
+        Returns:
+            Tax rate (multiplier for net amount after tax)
+        """
+        if no_tax:  # NISA account
+            if is_jp:
+                return 1.0  # No tax for Japanese stocks in NISA
+            else:
+                return Constants.US_WITHHOLDING_TAX_NISA  # US withholding tax only
+        else:  # Taxable account
+            if is_jp:
+                return Constants.JP_DIVIDEND_TAX_TAXABLE  # Japan dividend tax
+            else:
+                return Constants.US_DIVIDEND_TAX_TAXABLE  # US withholding + Japan tax
+
+    @staticmethod
+    def calculate_dividend_after_tax(
+        amount: float, is_jp: bool, no_tax: bool
+    ) -> tuple[float, float]:
+        """Calculate dividend amount after tax
+
+        Args:
+            amount: Original dividend amount
+            is_jp: True if Japanese stock, False if US stock
+            no_tax: True if NISA account, False if taxable account
+
+        Returns:
+            Tuple of (net_amount, tax_amount)
+        """
+        tax_rate = DividendTaxCalculator.get_dividend_tax_rate(is_jp, no_tax)
+        net_amount = amount * tax_rate
+        tax_amount = amount - net_amount
+        return net_amount, tax_amount
+
+    @staticmethod
+    def get_yield_after_tax(dividend_yield: float, is_jp: bool, no_tax: bool) -> float:
+        """Get effective dividend yield after tax
+
+        Args:
+            dividend_yield: Original dividend yield
+            is_jp: True if Japanese stock, False if US stock
+            no_tax: True if NISA account, False if taxable account
+
+        Returns:
+            Effective dividend yield after tax
+        """
+        tax_rate = DividendTaxCalculator.get_dividend_tax_rate(is_jp, no_tax)
+        return dividend_yield * tax_rate
+
+
 class Asset:
     """Asset class"""
 
@@ -277,46 +337,22 @@ def get_density_dist(
 def get_dividend_price(assets: list[Asset]) -> dict:
     """Returns the total dividend price of all Assets"""
     max_year = max([asset.year for asset in assets])
-    prices = [0] * (max_year + 1)
-    tax = [0] * (max_year + 1)
+    prices = [0.0] * (max_year + 1)
+    tax = [0.0] * (max_year + 1)
     for asset in assets:
         for i in range(max_year + 1):
             if i < len(asset.price_transition):
                 p = asset.price_transition[i] * asset.div / Constants.YEN_UNIT_DIVISOR
 
-                # NoTax(NISA)
-                if asset.no_tax:
-                    # JapanStock
-                    if asset.is_jp:
-                        prices[i] += p
-                    # USStock
-                    else:
-                        p1 = p * Constants.US_WITHHOLDING_TAX_NISA
-                        p2 = p - p1
-                        prices[i] += p1
-                        tax[i] += p2
-                # HasTax
-                else:
-                    # JapanStock
-                    if asset.is_jp:
-                        p1 = p * Constants.JP_DIVIDEND_TAX_TAXABLE
-                        p2 = p - p1
-                        prices[i] += p1
-                        tax[i] += p2
-                    # USStock
-                    else:
-                        p1 = p * Constants.US_DIVIDEND_TAX_TAXABLE
-                        p2 = p - p1
-                        prices[i] += p1
-                        tax[i] += p2
+                p1, p2 = DividendTaxCalculator.calculate_dividend_after_tax(
+                    p, asset.is_jp, asset.no_tax
+                )
+                prices[i] += p1
+                tax[i] += p2
             else:
-                # NoTax(NISA)
-                if asset.no_tax:
-                    prices[i] += p
-                # HasTax
-                else:
-                    prices[i] += p1
-                    tax[i] += p2
+                # Use the last calculated p1, p2 values
+                prices[i] += p1
+                tax[i] += p2
     return {
         'price': [round(p, 1) for p in prices],
         'tax': [round(p, 1) for p in tax],
@@ -333,22 +369,10 @@ def get_demolition_price(assets: list[Asset], duration: int) -> dict:
     for asset in assets:
         start_price = asset.price_transition[last_year]
 
-        # NoTax(NISA)
-        if asset.no_tax:
-            # JapanStock
-            if asset.is_jp:
-                yield_year = asset.yld + asset.div
-            # USStock
-            else:
-                yield_year = asset.yld + asset.div * Constants.US_WITHHOLDING_TAX_NISA
-        # HasTax
-        else:
-            # JapanStock
-            if asset.is_jp:
-                yield_year = asset.yld + asset.div * Constants.JP_DIVIDEND_TAX_TAXABLE
-            # USStock
-            else:
-                yield_year = asset.yld + asset.div * Constants.US_DIVIDEND_TAX_TAXABLE
+        effective_dividend_yield = DividendTaxCalculator.get_yield_after_tax(
+            asset.div, asset.is_jp, asset.no_tax
+        )
+        yield_year = asset.yld + effective_dividend_yield
 
         k = (yield_year * (1 + yield_year) ** duration) / (
             (1 + yield_year) ** duration - 1
