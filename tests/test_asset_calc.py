@@ -9,7 +9,7 @@ from src.asset_calc import (
     get_demolition_price,
     get_dividend_price,
     get_ratio_asset,
-    get_total_transion,
+    get_total_transition,
 )
 
 
@@ -239,7 +239,7 @@ def test__price_transition(asset1, asset2, asset3, asset4):
     assert asset4.price_transition == asset4_tran
 
 
-def test__get_total_transion(asset1, asset2, asset3, asset4):
+def test__get_total_transition(asset1, asset2, asset3, asset4):
     expected = {
         'max_year': 11,
         'capitalPriceTransition': [
@@ -271,7 +271,7 @@ def test__get_total_transion(asset1, asset2, asset3, asset4):
             4654898,
         ],
     }
-    assert get_total_transion([asset1, asset2, asset3, asset4]) == expected
+    assert get_total_transition([asset1, asset2, asset3, asset4]) == expected
 
 
 def test__get_ratio_asset(asset1, asset2, asset3, asset4):
