@@ -14,7 +14,7 @@ from asset_calc import (
     get_density_dist,
     get_dividend_price,
     get_ratio_asset,
-    get_total_transion,
+    get_total_transition,
 )
 from utils import make_logger, set_seed
 
@@ -89,7 +89,7 @@ def calculation():
             A.set_price_transition()
 
         res = {}
-        res['transition'] = get_total_transion(assets)  # Using Transition Chart
+        res['transition'] = get_total_transition(assets)  # Using Transition Chart
         res['pie'] = get_ratio_asset(assets)  # Using Pie Chart
         res['density'] = get_density_dist(assets)  # Using Density Chart
         res['bar'] = get_dividend_price(assets)  # Using Bar Chart
