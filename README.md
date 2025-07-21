@@ -1,35 +1,45 @@
 ## asset-management-simulation-backend
-- 自作のWebAppである資産管理シミュレーションのバックエンドに関するレポジトリです。
+
+- 自作の WebApp である資産管理シミュレーションのバックエンドに関するレポジトリです。
 - フロントエンドのレポジトリは [こちら](https://github.com/spider-man-tm/asset-management-simulation-frontend)をご参照ください。
 
 ![fig](architect.png)
 
 ### Overview
-- WebフレームワークはFlaskを使用しています。
-- デプロイ先は Google Cloud Runです。
-- develop branchへのPRが発行されたタイミングで、GitHub Actionsを利用した自動テスト(pytest)が実施されます。
-- develop branchへのPRがマージされたタイミングでmain branchへのリリースPRが自動作成されます。
-- main branchへpush、あるいはPRがマージされたタイミングでGitHub Actionsを利用したCloud Runへの自動デプロイが実施されます。
+
+- Web フレームワークは Flask を使用しています。
+- デプロイ先は Google Cloud Run です。
+- develop branch への PR が発行されたタイミングで、GitHub Actions を利用した自動テスト(pytest)が実施されます。
+- develop branch への PR がマージされたタイミングで main branch へのリリース PR が自動作成されます。
+- main branch へ push、あるいは PR がマージされたタイミングで GitHub Actions を利用した Cloud Run への自動デプロイが実施されます。
 
 ### Usage
+
 #### ローカル開発
+
 - 準備
-  - Makefile.devなどを用意し、以下のようにGCPのプロジェクトID、任意のイメージ名、タグ名、firebaseプロジェクト名、ローカルホスト名、（必要に応じて）postman headerなどを記述
-  - Makefileを読み込む必要があるため、`include Makefile`も合わせて記述
+  - Makefile.dev などを用意し、以下のように GCP のプロジェクト ID、リージョン、Artifact Registry リポジトリ名、任意のイメージ名、タグ名、firebase プロジェクト名、ローカルホスト名、（必要に応じて）postman header などを記述
+  - Makefile を読み込む必要があるため、`include Makefile`も合わせて記述
+  - **ALLOW_NO_ORIGIN**: Origin ヘッダーがないリクエスト（Postman、ブラウザ直接アクセス等）を許可するかの設定。開発環境では true、本番環境では false を推奨
+
 ```
 PROJECT_ID := xxx
+REGION := asia-northeast1
+REPOSITORY_NAME := xxx
 IMAGE := xxx
 TAG := xxx
 
 FIREBASE_PROJECT_NAME := xxx
 LOCAL_HOST := http://localhost:3000
 POSTMAN_HEADER := http://postman
+ALLOW_NO_ORIGIN := true
 
 include Makefile
 ```
 
-- Dockerコンテナを起動する場合
-``` shell
+- Docker コンテナを起動する場合
+
+```shell
 # ビルド
 make build -f Makefile.dev
 # ローカルでコンテナ起動
@@ -38,21 +48,50 @@ make run-local -f Makefile.dev
 make build run-local -f Makefile.dev
 ```
 
-- poetryで直接`.venv`を作成する場合
-``` shell
+- poetry で直接`.venv`を作成する場合
+
+```shell
 make install
 ```
 
-- ローカルで`.venv`環境を使ったpytestを実行する場合
-``` shell
+- ローカルで`.venv`環境を使った pytest を実行する場合
+
+```shell
 make test-local
 ```
 
 #### 手動デプロイ
-- Makefile.prdなどを用意する。あとは以下のコマンドでdeployまで行う
-- デプロイ時に`FRONTEND_URL_hoge`や`FIREBASE_PROJECT_NAME`を環境変数として渡す必要があるのでMakefile.prdで事前に定義する
+
+- 事前準備：Artifact Registry にリポジトリを作成
+
+```shell
+# 変数を設定
+PROJECT_ID=xxx
+REGION=asia-northeast1
+REPOSITORY_NAME=xxx
+
+# Artifact Registry APIを有効化
+gcloud services enable artifactregistry.googleapis.com \
+  --project="${PROJECT_ID}"
+
+# Dockerリポジトリを作成
+gcloud artifacts repositories create "${REPOSITORY_NAME}" \
+    --repository-format=docker \
+    --location="${REGION}" \
+    --project="${PROJECT_ID}"
+
+# Docker認証を設定
+gcloud auth configure-docker "${REGION}"-docker.pkg.dev
+```
+
+- Makefile.prd などを用意する。あとは以下のコマンドで deploy まで行う
+- デプロイ時に`FRONTEND_URL_hoge`や`FIREBASE_PROJECT_NAME`を環境変数として渡す必要があるので Makefile.prd で事前に定義する
+- **注意**: IMAGE の形式が Artifact Registry 用に変更されています
+
 ```
 PROJECT_ID := xxx
+REGION := asia-northeast1
+REPOSITORY_NAME := xxx
 IMAGE := xxx
 TAG := xxx
 
@@ -60,11 +99,12 @@ FIREBASE_PROJECT_NAME := xxx
 FRONTEND_URL_1 := xxx
 FRONTEND_URL_2 := xxx
 FRONTEND_URL_3 := xxx
+ALLOW_NO_ORIGIN := false
 
 include Makefile
 ```
 
-``` shell
+```shell
 # ビルド
 make build -f Makefile.prd
 # イメージをpush
@@ -76,14 +116,39 @@ make build push deploy -f Makefile.prd
 ```
 
 #### CI/CD
-- GCP上に新規サービスアカウントを以下のロールを付与した状態で作成
+
+- 事前準備：Artifact Registry にリポジトリを作成
+
+```shell
+# 変数を設定
+PROJECT_ID=xxx
+REGION=asia-northeast1
+REPOSITORY_NAME=xxx
+
+# Artifact Registry APIを有効化
+gcloud services enable artifactregistry.googleapis.com \
+  --project="${PROJECT_ID}"
+
+# Dockerリポジトリを作成
+gcloud artifacts repositories create "${REPOSITORY_NAME}" \
+    --repository-format=docker \
+    --location="${REGION}" \
+    --project="${PROJECT_ID}" \
+    --description="Docker repository for CI/CD"
+```
+
+- GCP 上に新規サービスアカウントを以下のロールを付与した状態で作成
+
   - ストレージ管理者
   - Cloud Run 管理者
   - サービスアカウントユーザー
+  - Artifact Registry 書き込み権限
+
 - 以下のスクリプトを実行
-  - サービスアカウントで発行されたjson鍵を使う認証は非推奨のため、workload-identityを使用
-  - 実行後、workload_identity_providerが表示されるが、後工程で必要
-``` shell
+  - サービスアカウントで発行された json 鍵を使う認証は非推奨のため、workload-identity を使用
+  - 実行後、workload_identity_provider が表示されるが、後工程で必要
+
+```shell
 PROJECT_ID=xxx
 SERVICE_ACCOUNT_NAME=xxx   # 上記で作成したサービスアカウント
 POOL_NAME=xxx
@@ -134,16 +199,18 @@ echo $(gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" 
   --format='value(name)')
 
 ```
-- GitHub上で各種Secretsを設定
 
-| Secrets | 説明 |
-| --- | --- |
-| FIREBASE_PROJECT_NAME | FirebaseのプロジェクトID |
-| FRONTEND_URL_1 | Firebase Hosting のURL (デフォルト1) |
-| FRONTEND_URL_2 | Firebase Hosting のURL (デフォルト2) |
-| FRONTEND_URL_3 | Firebase Hosting のURL (カスタムドメイン) |
-| GCP_PROJECT_ID | デプロイ先のプロジェクトID |
-| GCP_REGION | デプロイ先のリージョン |
-| SERVICE_ACCOUNT_NAME | 作成したサービスアカウント名 |
-| SERVICE_NAME | Docker Image 名 |
-| WORKLOAD_IDENTITY_PROVIDER | 作成したプロバイダー名 |
+- GitHub 上で各種 Secrets を設定
+
+| Secrets                    | 説明                                       |
+| -------------------------- | ------------------------------------------ |
+| ARTIFACT_REGISTRY_REPO     | Artifact Registry のリポジトリ名           |
+| FIREBASE_PROJECT_NAME      | Firebase のプロジェクト ID                 |
+| FRONTEND_URL_1             | Firebase Hosting の URL (デフォルト 1)     |
+| FRONTEND_URL_2             | Firebase Hosting の URL (デフォルト 2)     |
+| FRONTEND_URL_3             | Firebase Hosting の URL (カスタムドメイン) |
+| GCP_PROJECT_ID             | デプロイ先のプロジェクト ID                |
+| GCP_REGION                 | デプロイ先のリージョン                     |
+| SERVICE_ACCOUNT_NAME       | 作成したサービスアカウント名               |
+| SERVICE_NAME               | Docker Image 名                            |
+| WORKLOAD_IDENTITY_PROVIDER | 作成したプロバイダー名                     |
