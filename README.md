@@ -20,7 +20,7 @@
 - 準備
   - Makefile.dev などを用意し、以下のように GCP のプロジェクト ID、リージョン、Artifact Registry リポジトリ名、任意のイメージ名、タグ名、firebase プロジェクト名、ローカルホスト名、（必要に応じて）postman header などを記述
   - Makefile を読み込む必要があるため、`include Makefile`も合わせて記述
-  - **注意**: Artifact Registry 対応のため、REGION と REPOSITORY_NAME の設定が新たに必要です
+  - **ALLOW_NO_ORIGIN**: Origin ヘッダーがないリクエスト（Postman、ブラウザ直接アクセス等）を許可するかの設定。開発環境では true、本番環境では false を推奨
 
 ```
 PROJECT_ID := xxx
@@ -32,6 +32,7 @@ TAG := xxx
 FIREBASE_PROJECT_NAME := xxx
 LOCAL_HOST := http://localhost:3000
 POSTMAN_HEADER := http://postman
+ALLOW_NO_ORIGIN := true
 
 include Makefile
 ```
@@ -64,17 +65,23 @@ make test-local
 - 事前準備：Artifact Registry にリポジトリを作成
 
 ```shell
+# 変数を設定
+PROJECT_ID=xxx
+REGION=asia-northeast1
+REPOSITORY_NAME=xxx
+
 # Artifact Registry APIを有効化
-gcloud services enable artifactregistry.googleapis.com
+gcloud services enable artifactregistry.googleapis.com \
+  --project="${PROJECT_ID}"
 
 # Dockerリポジトリを作成
-gcloud artifacts repositories create REPOSITORY_NAME \
+gcloud artifacts repositories create "${REPOSITORY_NAME}" \
     --repository-format=docker \
-    --location=REGION \
-    --description="Docker repository"
+    --location="${REGION}" \
+    --project="${PROJECT_ID}"
 
 # Docker認証を設定
-gcloud auth configure-docker REGION-docker.pkg.dev
+gcloud auth configure-docker "${REGION}"-docker.pkg.dev
 ```
 
 - Makefile.prd などを用意する。あとは以下のコマンドで deploy まで行う
@@ -83,13 +90,16 @@ gcloud auth configure-docker REGION-docker.pkg.dev
 
 ```
 PROJECT_ID := xxx
-IMAGE := REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY_NAME/IMAGE_NAME:TAG
+REGION := asia-northeast1
+REPOSITORY_NAME := xxx
+IMAGE := xxx
 TAG := xxx
 
 FIREBASE_PROJECT_NAME := xxx
 FRONTEND_URL_1 := xxx
 FRONTEND_URL_2 := xxx
 FRONTEND_URL_3 := xxx
+ALLOW_NO_ORIGIN := false
 
 include Makefile
 ```
@@ -110,13 +120,20 @@ make build push deploy -f Makefile.prd
 - 事前準備：Artifact Registry にリポジトリを作成
 
 ```shell
+# 変数を設定
+PROJECT_ID=xxx
+REGION=asia-northeast1
+REPOSITORY_NAME=xxx
+
 # Artifact Registry APIを有効化
-gcloud services enable artifactregistry.googleapis.com
+gcloud services enable artifactregistry.googleapis.com \
+  --project="${PROJECT_ID}"
 
 # Dockerリポジトリを作成
-gcloud artifacts repositories create REPOSITORY_NAME \
+gcloud artifacts repositories create "${REPOSITORY_NAME}" \
     --repository-format=docker \
-    --location=REGION \
+    --location="${REGION}" \
+    --project="${PROJECT_ID}" \
     --description="Docker repository for CI/CD"
 ```
 

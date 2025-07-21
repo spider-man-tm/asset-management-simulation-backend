@@ -31,9 +31,10 @@ push:
 
 deploy:
 	gcloud run deploy ${IMAGE} \
+		--project=${PROJECT_ID} \
 		--image=$(REGION)-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE}:${TAG} \
 		--platform=managed \
-		--region=asia-northeast1 \
+		--region=$(REGION) \
 		--timeout=60 \
 		--concurrency=80 \
 		--cpu=1 \
@@ -43,4 +44,5 @@ deploy:
 		--set-env-vars=FIREBASE_PROJECT_NAME=${FIREBASE_PROJECT_NAME} \
 		--set-env-vars=FRONTEND_URL_1=${FRONTEND_URL_1} \
 		--set-env-vars=FRONTEND_URL_2=${FRONTEND_URL_2} \
-		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3}
+		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3} \
+		--set-env-vars=ALLOW_NO_ORIGIN=${ALLOW_NO_ORIGIN}
