@@ -17,21 +17,21 @@ lint:
 	cd src/ && $(POETRY_RUN) mypy .
 
 build:
-	docker build --platform linux/amd64 -t gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG) .
+	docker build --platform linux/amd64 -t $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE):$(TAG) .
 
 run-local:
 	docker run -p 9000:9000 \
 		-e PORT=9000 \
 		-e LOCAL_HOST=$(LOCAL_HOST) \
 		-e POSTMAN_HEADER=$(POSTMAN_HEADER) \
-		gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG)
+		$(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE):$(TAG)
 
 push:
-	docker push gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG)
+	docker push $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE):$(TAG)
 
 deploy:
 	gcloud run deploy ${IMAGE} \
-		--image=gcr.io/${PROJECT_ID}/${IMAGE}:${TAG} \
+		--image=$(REGION)-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE}:${TAG} \
 		--platform=managed \
 		--region=asia-northeast1 \
 		--timeout=60 \
