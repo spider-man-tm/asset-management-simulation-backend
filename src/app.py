@@ -48,12 +48,16 @@ def add_cors_headers(response):
         if origin_is_allowed(origin_cleaned):
             response.headers['Access-Control-Allow-Origin'] = origin_cleaned
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-            response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+            response.headers['Access-Control-Allow-Methods'] = (
+                'GET,PUT,POST,DELETE,OPTIONS'
+            )
     else:
         if os.getenv("ALLOW_NO_ORIGIN", "true") == "true":
             response.headers['Access-Control-Allow-Origin'] = '*'
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-            response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+            response.headers['Access-Control-Allow-Methods'] = (
+                'GET,PUT,POST,DELETE,OPTIONS'
+            )
     return response
 
 
