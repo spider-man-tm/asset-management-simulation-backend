@@ -17,23 +17,24 @@ lint:
 	cd src/ && $(POETRY_RUN) mypy .
 
 build:
-	docker build --platform linux/amd64 -t gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG) .
+	docker build --platform linux/amd64 -t $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE):$(TAG) .
 
 run-local:
 	docker run -p 9000:9000 \
 		-e PORT=9000 \
 		-e LOCAL_HOST=$(LOCAL_HOST) \
 		-e POSTMAN_HEADER=$(POSTMAN_HEADER) \
-		gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG)
+		$(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE):$(TAG)
 
 push:
-	docker push gcr.io/$(PROJECT_ID)/$(IMAGE):$(TAG)
+	docker push $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE):$(TAG)
 
 deploy:
 	gcloud run deploy ${IMAGE} \
-		--image=gcr.io/${PROJECT_ID}/${IMAGE}:${TAG} \
+		--project=${PROJECT_ID} \
+		--image=$(REGION)-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY_NAME}/${IMAGE}:${TAG} \
 		--platform=managed \
-		--region=asia-northeast1 \
+		--region=$(REGION) \
 		--timeout=60 \
 		--concurrency=80 \
 		--cpu=1 \
@@ -43,4 +44,5 @@ deploy:
 		--set-env-vars=FIREBASE_PROJECT_NAME=${FIREBASE_PROJECT_NAME} \
 		--set-env-vars=FRONTEND_URL_1=${FRONTEND_URL_1} \
 		--set-env-vars=FRONTEND_URL_2=${FRONTEND_URL_2} \
-		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3}
+		--set-env-vars=FRONTEND_URL_3=${FRONTEND_URL_3} \
+		--set-env-vars=ALLOW_NO_ORIGIN=${ALLOW_NO_ORIGIN}
